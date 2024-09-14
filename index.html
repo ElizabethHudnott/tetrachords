@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<link rel="stylesheet" href="page.css">
+	<script src="tetrachord.js" defer></script>
+	<title>Tetrachord Explorer</title>
+</head>
+<body>
+<form class="d-table w-100">
+	<div class="d-table-row">
+		<label class="d-table-cell nostretch" for="equave">
+			Equave
+		</label>
+		<div class="d-table-cell">
+			<select id="equave">
+				<option value="1.5">3/2</option>
+				<option selected>2</option>
+			</select>
+		</div>
+	</div>
+	<div class="d-table-row">
+		<label class="d-table-cell nostretch" for="divisions">
+			Number of Divisions
+		</label>
+		<div class="d-table-cell">
+			<input type="range" class="w-100" id="divisions" min="7" max="160" value="12">
+		</div>
+		<div class="d-table-cell nostretch">
+			<output for="divisions" id="divisions-readout"></output>
+		</div>
+	</div>
+	<div class="d-table-row">
+		<label class="d-table-cell nostretch" for="fourth-interval">
+			Fourth Interval
+		</label>
+		<div class="d-table-cell">
+			<input type="range" class="w-100" id="fourth-interval">
+		</div>
+		<div class="d-table-cell nostretch">
+			<output for="fourth-interval" id="fourth-interval-readout"></output>
+		</div>
+	</div>
+	<div class="d-table-row">
+		<label class="d-table-cell nostretch" for="big-interval">
+			Big Interval
+		</label>
+		<div class="d-table-cell">
+			<input type="range" class="w-100" id="big-interval">
+		</div>
+		<div class="d-table-cell nostretch">
+			<output for="big-interval" id="big-interval-readout"></output>
+		</div>
+	</div>
+	<div class="d-table-row">
+		<label class="d-table-cell nostretch" for="mid-interval">
+			Medium Interval
+		</label>
+		<div class="d-table-cell">
+			<input type="range" class="w-100" id="mid-interval">
+		</div>
+		<div class="d-table-cell nostretch">
+			<output for="mid-interval" id="mid-interval-readout"></output>
+		</div>
+	</div>
+	<div class="d-table-row">
+		<label class="d-table-cell nostretch" for="small-interval-readout">
+			Small Interval
+		</label>
+		<div class="d-table-cell"></div>
+		<div class="d-table-cell nostretch">
+			<output id="small-interval-readout"></output>
+		</div>
+	</div>
+	<div class="d-table-row">
+		<label class="d-table-cell nostretch" for="order">
+			Order
+		</label>
+		<div class="d-table-cell">
+			<input type="range" class="w-100" id="order" min="0" max="5" value="2">
+		</div>
+		<div class="d-table-cell nostretch">
+			<output for="order" id="order-readout"></output>
+		</div>
+	</div>
+	<div class="d-table-row">
+		<label class="d-table-cell nostretch" for="root-note">
+			Root
+		</label>
+		<div class="d-table-cell">
+			<select id="root-note">
+				<option value="-9">C</option>
+				<option value="-8">C#</option>
+				<option value="-7">D</option>
+				<option value="-6">D#</option>
+				<option value="-5">E</option>
+				<option value="-4">F</option>
+				<option value="-3">F#</option>
+				<option value="-2">G</option>
+				<option value="-1">G#</option>
+				<option value="0">A</option>
+				<option value="1">A#</option>
+				<option value="2">B</option>
+			</select>
+			<select id="root-octave">
+				<option value="-3">1</option>
+				<option value="-2">2</option>
+				<option value="-1">3</option>
+				<option value="0" selected>4</option>
+				<option value="1">5</option>
+				<option value="2">6</option>
+				<option value="3">7</option>
+			</select>
+		</div>
+	</div>
+<!--
+	<div class="d-table-row">
+		<label class="d-table-cell nostretch" for="">
+		</label>
+		<div class="d-table-cell">
+			<input type="range" class="w-100" id="">
+		</div>
+		<div class="d-table-cell nostretch">
+			<output for="" id="-readout"></output>
+		</div>
+	</div>
+-->
+</form>
+</body>
+</html>

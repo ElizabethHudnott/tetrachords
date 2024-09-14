@@ -1,0 +1,24 @@
+.w-100 {
+	width: 100%;
+}
+
+.d-table {
+	display: table;
+}
+
+.d-table-row {
+	display: table-row;
+}
+
+.d-table-cell {
+	display: table-cell;
+}
+
+.d-table-cell>input {
+	vertical-align: middle;
+}
+
+.nostretch {
+	width: 0;
+	white-space: nowrap;
+}
