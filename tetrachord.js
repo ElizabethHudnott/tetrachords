@@ -2,6 +2,8 @@ const SAMPLE_PATH = 'https://gleitz.github.io/midi-js-soundfonts/MusyngKite/';
 let instrument = 'dulcimer';
 
 const NOTE_NAMES = ['C', 'Db', 'D', 'Eb', 'E', 'F', 'Gb', 'G', 'Ab', 'A', 'Bb', 'B'];
+const ATTENUATION_BITS = 8;
+const TIME_CONSTANTS = Math.log(1 << ATTENUATION_BITS);
 
 const equaveInput = document.getElementById('equave');
 const divisionsInput = document.getElementById('divisions');
@@ -26,11 +28,19 @@ let bigIntervalMin, bigIntervalMax, bigInterval;
 let midIntervalMin, midIntervalMax, midInterval;
 let intervals;
 let rootNote = 60, playbackRates = [1];
+let releaseDuration = 0.7;
 
 const context = new AudioContext();
 let samples = [];
 const sourceNodes = [];
 let noteNumbers = [];
+
+const amps = [];
+for (let i = 0; i < 7; i++) {
+	const amp = new GainNode(context);
+	amp.connect(context.destination);
+	amps[i] = amp;
+}
 
 function stepsToRatio(steps) {
 	return equave ** (steps / numDivisions);
@@ -99,10 +109,14 @@ function instrumentChange(name) {
 	updateSamples(true);
 }
 
+function nextQuantum() {
+	return context.currentTime + 255 / context.sampleRate;
+}
+
 /**
  * @param {number} scaleDegree One based index.
  */
-function playNote(scaleDegree, time) {
+function playNote(scaleDegree) {
 	const midiNote = noteNumbers[scaleDegree - 1];
 	const sample = samples[midiNote];
 	if (sample === undefined) {
@@ -110,14 +124,31 @@ function playNote(scaleDegree, time) {
 	}
 	const newNode = new AudioBufferSourceNode(context);
 	newNode.buffer = sample;
-	newNode.connect(context.destination);
 	newNode.playbackRate.value = playbackRates[scaleDegree - 1];
+
+	const amp = amps[scaleDegree - 1];
+	newNode.connect(amp);
+
+	const gain = amp.gain;
+	const time = nextQuantum();
+	gain.cancelScheduledValues(time);
+	gain.setValueAtTime(1, time);
 	newNode.start(time);
-	const oldNode = sourceNodes[midiNote];
+
+	const oldNode = sourceNodes[scaleDegree - 1];
 	if (oldNode !== undefined) {
 		oldNode.stop(time);
 	}
-	sourceNodes[midiNote] = newNode;
+	sourceNodes[scaleDegree - 1] = newNode;
+}
+
+function noteOff(scaleDegree) {
+	const gain = amps[scaleDegree - 1].gain;
+	const time = nextQuantum();
+	gain.cancelScheduledValues(time);
+	gain.setTargetAtTime(0, time, releaseDuration / TIME_CONSTANTS);
+	const source = sourceNodes[scaleDegree - 1];
+	source.stop(time + releaseDuration);
 }
 
 // Maps key codes to scale degrees.
@@ -136,6 +167,13 @@ document.body.addEventListener('keydown', function (event) {
 	if (scaleDegree !== undefined) {
 		context.resume();
 		playNote(scaleDegree);
+	}
+});
+
+document.body.addEventListener('keyup', function (event) {
+	const scaleDegree = KEYMAP.get(event.code);
+	if (scaleDegree !== undefined) {
+		noteOff(scaleDegree);
 	}
 });
 
@@ -204,8 +242,8 @@ function previewInput() {
 	intervals[0] = sortedIntervals[permutation[0]];
 	intervals[1] = sortedIntervals[permutation[1]];
 	intervals[2] = sortedIntervals[permutation[2]];
-	document.getElementById('order-readout').innerHTML = intervals.toString();
 	intervals[3] = fifth - fourth;
+	document.getElementById('order-readout').innerHTML = intervals.toString();
 	updateSamples();
 }
 
