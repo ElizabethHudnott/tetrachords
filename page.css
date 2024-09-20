@@ -1,5 +1,5 @@
-#number-line {
-	width: 100vh;
+* {
+	box-sizing: border-box;
 }
 
 .w-100 {

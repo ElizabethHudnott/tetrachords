@@ -12,6 +12,10 @@ const bigInput = document.getElementById('big-interval');
 const midInput = document.getElementById('mid-interval');
 const orderInput = document.getElementById('order');
 
+const canvas = document.getElementById('number-line');
+canvas.width = canvas.clientWidth;
+const context2d = canvas.getContext('2d');
+
 // 0 = big interval, 1 = mid interval 2 = small interval
 const PERMUTATIONS = Object.freeze([
 	[1, 2, 0],
@@ -244,6 +248,50 @@ function findRatios(multiples, minDenominator) {
 	return maxFound === prevMaxFound ? ratios : prevRatios;
 }
 
+function ratioText(ratio) {
+	if (ratio[1] === 1) {
+		return ratio[0].toString();
+	} else {
+		return ratio[0] + ' / ' + ratio[1];
+	}
+}
+
+function drawNumberLine() {
+	const numIntervals = intervals.length;
+	const multiples = [1];
+	let steps = 0;
+	for (let i = 0; i < numIntervals; i++) {
+		steps += intervals[i];
+		multiples[i + 1] = equave ** (steps / numDivisions);
+	}
+
+	context2d.font = '1.25rem sans-serif';
+	context2d.textBaseline = 'top';
+	const textY = 0;
+	context2d.clearRect(0, 0, canvas.width, canvas.height);
+
+	const sensitivity = Math.ceil(1 / (equave ** (1 / numDivisions) - 1));
+	const ratios = findRatios(multiples, sensitivity);
+	let text = ratioText(ratios[0]);
+	context2d.textAlign = 'left';
+	context2d.fillText(text, 0, textY);
+	let metrics = context2d.measureText(text);
+	const left = Math.round(0.5 * metrics.width);
+	text = ratioText(ratios[numIntervals]);
+	context2d.textAlign = 'right';
+	context2d.fillText(text, canvas.width, textY);
+	metrics = context2d.measureText(text);
+	const right = Math.round(canvas.width - 0.5 * metrics.width);
+	const zoom = (right - left) / Math.log2(multiples[numIntervals]);
+
+	context2d.textAlign = 'center';
+	for (let i = 1; i < numIntervals; i++) {
+		const x = left + Math.log2(multiples[i]) * zoom;
+		text = ratioText(ratios[i]);
+		context2d.fillText(text, x, textY);
+	}
+}
+
 function previewInput() {
 	equave = parseFloat(equaveInput.value);
 	numDivisions = parseInt(divisionsInput.value);
@@ -312,6 +360,7 @@ function previewInput() {
 	intervals[3] = fifth - fourth;
 	document.getElementById('order-readout').innerHTML = intervals.toString();
 	updateSamples();
+	drawNumberLine();
 }
 
 function acceptInput() {
