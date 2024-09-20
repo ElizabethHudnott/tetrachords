@@ -83,6 +83,112 @@
 		</div>
 	</div>
 	<div class="d-table-row">
+		<label class="d-table-cell nostretch" for="instrument">
+			Instrument
+		</label>
+		<div class="d-table-cell">
+			<select id="instrument">
+				<optgroup label="Plucked">
+					<option value="banjo">Banjo</option>
+					<option value="dulcimer" selected>Dulcimer</option>
+					<option value="acoustic_guitar_nylon">Nylon Guitar</option>
+					<option value="acoustic_guitar_steel">Steel Guitar</option>
+					<option value="acoustic_bass">Bass</option>
+					<option value="kalimba">Kalimba</option>
+					<option value="koto">Koto</option>
+					<option value="orchestral_harp">Harp</option>
+				</optgroup>
+				<optgroup label="Bowed">
+					<option value="fiddle">Fiddle</option>
+					<option value="cello">Cello</option>
+					<option value="contrabass">Double Bass</option>
+				</optgroup>
+				<optgroup label="Wind">
+					<option value="bagpipe">Bagpipes</option>
+					<option value="blown_bottle">Bottle</option>
+					<option value="breath_noise">Breath</option>
+					<option value="clarinet">Clarinet</option>
+					<option value="flute">Flute</option>
+					<option value="pan_flute">Pan Flute</option>
+					<option value="harmonica">Harmonica</option>
+					<option value="oboe">Oboe</option>
+					<option value="orcarina">Ocarina</option>
+				</optgroup>
+				<optgroup label="Brass">
+					<option value="brass_section">Brass Section</option>
+					<option value="english_horn">English Horn</option>
+					<option value="french_horn">French Horn</option>
+					<option value="alto_sax">Alto Saxophone</option>
+					<option value="baritone_sax">Baritone Saxophone</option>
+					<option value="muted_trumpet">Muted Trumpet</option>
+				</optgroup>
+				<optgroup label="Keyboard">
+					<option value="accordion">Accordion</option>
+					<option value="harpsichord">Harpsichord</option>
+					<option value="acoustic_grand_piano">Grand Piano</option>
+					<option value="bright_acoustic_piano">Bright Piano</option>
+					<option value="honkytonk_piano">Honky-tonk Piano</option>
+					<option value="church_organ">Pipe Organ</option>
+				</optgroup>
+				<optgroup label="Vocal">
+					<option value="choir_aahs">Choir</option>
+				</optgroup>
+				<optgroup label="Electronic">
+					<option value="clavinet">Clavinet</option>
+					<option value="drawbar_organ">Drawbar Organ</option>
+					<option value="electric_grand_piano">E Grand Piano</option>
+					<option value="electric_piano_1">E Piano 1</option>
+					<option value="electric_piano_2">E Piano 2</option>
+					<option value="electric_guitar_clean">Clean Guitar</option>
+					<option value="distortion_guitar">Distortion Guitar</option>
+					<option value="overdriven_guitar">Overdriven Guitar</option>
+					<option value="guitar_harmonics">Guitar Harmonics</option>
+					<option value="electric_guitar_muted">Muted Guitar</option>
+					<option value="electric_guitar_jazz">Jazz Guitar</option>
+					<option value="electric_bass_finger">Bass (finger)</option>
+					<option value="electric_bass_pick">Bass (pick)</option>
+					<option value="fretless_bass">Fretless Bass</option>
+				</optgroup>
+				<optgroup label="Percussion">
+					<option value="agogo">Agogô</option>
+					<option value="celesta">Celesta</option>
+					<option value="glockenspiel">Glockenspiel</option>
+					<option value="marimba">Marimba</option>
+					<option value="music_box">Music Box</option>
+					<option value="melodic_tom">Tom</option>
+				</optgroup>
+				<optgroup label="Synth">
+					<option value="fx_4_atmosphere">Atmosphere</option>
+					<option value="pad_5_bowed">Bowed</option>
+					<option value="fx_5_brightness">Brightness</option>
+					<option value="pad_4_choir">Choir</option>
+					<option value="fx_3_crystal">Crystal</option>
+					<option value="fx_7_echoes">Echoes</option>
+					<option value="pad_7_halo">Halo</option>
+					<option value="pad_6_metallic">Metallic</option>
+					<option value="pad_1_new_age">New Age</option>
+					<option value="pad_3_polysynth">Polysynth</option>
+					<option value="fx_1_rain">Rain</option>
+					<option value="pad_2_warm">Warm</option>
+					<option value="fx_8_scifi">Sci-Fi</option>
+					<option value="fx_2_soundtrack">Soundtrack</option>
+					<option value="pad_8_sweep">Sweep</option>
+					<option value="lead_1_square">Lead Square</option>
+					<option value="lead_2_sawtooth">Lead Sawtooth</option>
+					<option value="lead_3_calliope">Lead Calliope</option>
+					<option value="lead_4_chiff">Lead Chiff</option>
+					<option value="lead_5_charang">Lead Charang</option>
+					<option value="lead_6_voice">Lead Voice</option>
+					<option value="lead_7_fifths">Lead Fifths</option>
+					<option value="lead_8_bass__lead">Bass</option>
+				</optgroup>
+				<!--
+					<option value=""></option>
+				-->
+			</select>
+		</div>
+	</div>
+	<div class="d-table-row">
 		<label class="d-table-cell nostretch" for="root-note">
 			Root
 		</label>
@@ -125,5 +231,6 @@
 	</div>
 -->
 </form>
+<canvas id="number-line"></canvas>
 </body>
 </html>

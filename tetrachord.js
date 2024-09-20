@@ -13,14 +13,14 @@ const midInput = document.getElementById('mid-interval');
 const orderInput = document.getElementById('order');
 
 // 0 = big interval, 1 = mid interval 2 = small interval
-const permutations = [
+const PERMUTATIONS = Object.freeze([
 	[1, 2, 0],
 	[1, 0, 2],
 	[0, 1, 2],
 	[0, 2, 1],
 	[2, 0, 1],
 	[2, 1, 0],
-];
+]);
 
 let equave, numDivisions;
 let fourthMin, fourthMax, fourth;
@@ -30,15 +30,15 @@ let intervals;
 let rootNote = 60, playbackRates = [1];
 let releaseDuration = 0.7;
 
-const context = new AudioContext();
+const audioContext = new AudioContext();
 let samples = [];
 const sourceNodes = [];
 let noteNumbers = [];
 
 const amps = [];
 for (let i = 0; i < 7; i++) {
-	const amp = new GainNode(context);
-	amp.connect(context.destination);
+	const amp = new GainNode(audioContext);
+	amp.connect(audioContext.destination);
 	amps[i] = amp;
 }
 
@@ -65,13 +65,22 @@ function sampleURL(instrument, noteNumber) {
 	return SAMPLE_PATH + instrument + '-mp3/' + midiNoteToName(noteNumber) + '.mp3';
 }
 
-const fetchSample = noteNumber =>
-	fetch(sampleURL(instrument, noteNumber), {cache: 'force-cache'})
-	.then(response => response.ok ? response.arrayBuffer() : Promise.reject(new Error('HTTP ' + response.status + ' ' + response.statusText)))
-	.then(arrayBuffer => context.decodeAudioData(arrayBuffer))
+function fetchSample(noteNumber) {
+	const url = sampleURL(instrument, noteNumber);
+	const promise = fetch(url, {cache: 'force-cache'})
+	.then(response => {
+		if (response.ok) {
+			return response.arrayBuffer();
+		} else {
+			return Promise.reject(new Error('HTTP ' + response.status + ' ' + response.statusText));
+		}
+	})
+	.then(arrayBuffer => audioContext.decodeAudioData(arrayBuffer))
 	.then(audioBuffer => [noteNumber, audioBuffer]);
+	return promise;
+}
 
-function updateSamples(forceReload = false) {
+function updateSamples() {
 	const numIntervals = intervals.length;
 	const newNotes = new Array(numIntervals + 1);
 	const newRates = new Array(numIntervals + 1);
@@ -88,13 +97,19 @@ function updateSamples(forceReload = false) {
 
 	const promises = [];
 	for (let note of newNotes) {
-		if (samples[note] === undefined || forceReload) {
+		if (samples[note] === undefined) {
 			const promise = fetchSample(note)
 			.then(data => samples[data[0]] = data[1]);
 			promises.push(promise);
 		}
 	}
-	return Promise.all(promises).then(() => {noteNumbers = newNotes; playbackRates = newRates});
+	const completed = Promise.all(promises)
+	.then(() => {
+		noteNumbers = newNotes;
+		playbackRates = newRates;
+	})
+	.catch(error => Console.log(error));
+	return completed;
 }
 
 function updateRootNote() {
@@ -106,11 +121,12 @@ function updateRootNote() {
 
 function instrumentChange(name) {
 	instrument = name;
-	updateSamples(true);
+	samples = [];
+	updateSamples();
 }
 
 function nextQuantum() {
-	return context.currentTime + 255 / context.sampleRate;
+	return audioContext.currentTime + 255 / audioContext.sampleRate;
 }
 
 /**
@@ -122,7 +138,7 @@ function playNote(scaleDegree) {
 	if (sample === undefined) {
 		return;
 	}
-	const newNode = new AudioBufferSourceNode(context);
+	const newNode = new AudioBufferSourceNode(audioContext);
 	newNode.buffer = sample;
 	newNode.playbackRate.value = playbackRates[scaleDegree - 1];
 
@@ -165,7 +181,7 @@ document.body.addEventListener('keydown', function (event) {
 	}
 	const scaleDegree = KEYMAP.get(event.code);
 	if (scaleDegree !== undefined) {
-		context.resume();
+		audioContext.resume();
 		playNote(scaleDegree);
 	}
 });
@@ -176,6 +192,57 @@ document.body.addEventListener('keyup', function (event) {
 		noteOff(scaleDegree);
 	}
 });
+
+function gcd(a, b) {
+	while (b !== 0) {
+		[a, b] = [b, a % b];
+	}
+	return a;
+}
+
+function findRatio(n, maxDivisor) {
+	let bestNumerator = Math.round(n * maxDivisor);
+	let bestDivisor = maxDivisor;
+	let minError = Math.abs(Math.log2((bestNumerator / maxDivisor) / n));
+	const minDivisor = Math.trunc(0.5 * maxDivisor) + 1;
+	for (let i = maxDivisor - 1; i >= minDivisor; i--) {
+		const numerator = Math.round(n * i);
+		const error = Math.abs(Math.log2((numerator / i) / n));
+		if (error <= minError) {
+			bestNumerator = numerator;
+			bestDivisor = i;
+			minError = error;
+		}
+	}
+	const commonDivisor = gcd(bestNumerator, bestDivisor);
+	return [bestNumerator / commonDivisor, bestDivisor / commonDivisor];
+}
+
+function findRatios(multiples, minDenominator) {
+	const numMultiples = multiples.length;
+	let ratios = new Array(numMultiples);
+	let maxFound = 0;
+	for (let i = 0; i < numMultiples; i++) {
+		const ratio = findRatio(multiples[i], minDenominator);
+		ratios[i] = ratio;
+		maxFound = Math.max(maxFound, ratio[0], ratio[1]);
+	}
+
+	let prevRatios, prevMaxFound;
+	do {
+		prevRatios = ratios;
+		prevMaxFound = maxFound;
+		maxFound = 0;
+		ratios = new Array(numMultiples);
+		for (let i = 0; i < numMultiples; i++) {
+			const maxDenominator = Math.max(Math.trunc(prevMaxFound / multiples[i]), minDenominator);
+			const ratio = findRatio(multiples[i], maxDenominator);
+			ratios[i] = ratio;
+			maxFound = Math.max(maxFound, ratio[0], ratio[1]);
+		}
+	} while (maxFound < prevMaxFound);
+	return maxFound === prevMaxFound ? ratios : prevRatios;
+}
 
 function previewInput() {
 	equave = parseFloat(equaveInput.value);
@@ -237,7 +304,7 @@ function previewInput() {
 	document.getElementById('small-interval-readout').innerHTML = smallInterval;
 
 	let sortedIntervals = [bigInterval, midInterval, smallInterval];
-	let permutation = permutations[parseInt(orderInput.value)];
+	let permutation = PERMUTATIONS[parseInt(orderInput.value)];
 	intervals = [0, 0, 0];	// Add remaining elements after calling toString
 	intervals[0] = sortedIntervals[permutation[0]];
 	intervals[1] = sortedIntervals[permutation[1]];
@@ -272,6 +339,10 @@ acceptInput();
 		input.addEventListener('keyup', acceptInput);
 	}
 }
+
+document.getElementById('instrument').addEventListener('input', function (event) {
+	instrumentChange(event.target.value);
+});
 
 document.getElementById('root-note').addEventListener('input', updateRootNote);
 document.getElementById('root-octave').addEventListener('input', updateRootNote);
